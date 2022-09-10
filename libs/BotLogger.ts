@@ -38,7 +38,7 @@ export abstract class BotLogger {
                     .setTitle("MAJOR ERROR\ntype " + error.name + (message !== null && message !== undefined ? "\n\n" + message : ""))
                     .setDescription(error.message + "\n" + error.stack + "\n")
                     .setTimestamp()
-                    .setFooter("An exception was handled and bot will continue to run.")
+                    .setFooter({text: "An exception was handled and bot will continue to run."})
             ]
         });
     }
@@ -54,7 +54,23 @@ export abstract class BotLogger {
                     .setTitle("MINOR ERROR")
                     .setDescription(message)
                     .setTimestamp()
-                    .setFooter("An error was handled and bot will continue to run.")
+                    .setFooter({text: "An error was handled and bot will continue to run."})
+            ]
+        });
+    }
+
+    public static async Info(key: string, message: string): Promise<void> {
+        Main.SetCurrentBot((await Main.WaitForBot("porter")).client);
+        Logger.Info(message);
+        await (await this.getChannel()).send({
+            content: "Important info message:",
+            embeds: [
+                new MessageEmbed()
+                    .setColor("#f1ffad")
+                    .setTitle("IMPORTANT INFO")
+                    .setDescription(message)
+                    .setTimestamp()
+                    .setFooter({text: `Info-key: ${key}`})
             ]
         });
     }

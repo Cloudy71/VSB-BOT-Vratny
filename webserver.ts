@@ -82,8 +82,8 @@ app.get("/auth", cas.bounce, (req, res) => {
         return;
     }
     Logger.Obj(req.session);
-    let userData: {} = req.session["cas_userinfo"] as {};
-    let userId: string = req.session["userId"] as string;
+    const userData: {} = req.session["cas_userinfo"] as {};
+    const userId: string = req.session["userId"] as string;
     socketApps.val(0)?.write(MasterServerDataBuilder.BotVerifyStudent(
         userId,
         userData["uid"],

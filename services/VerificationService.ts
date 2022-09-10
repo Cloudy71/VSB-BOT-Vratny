@@ -14,6 +14,7 @@ import * as Files from "../libs/Files";
 import * as Channels from "../libs/Channels";
 import {ButtonInteractionWrap} from "../types/ButtonInteractionWrap";
 import * as Axios from "axios";
+import {BotLogger} from "../libs/BotLogger";
 
 export class VerificationService extends Service {
     private readonly ssoAddress: string;
@@ -24,7 +25,7 @@ export class VerificationService extends Service {
         // this.allowedChannels = [Main.Config.channels.welcome];
         this.ssoAddress = Main.Auth.sso.url;
 
-        let data = {"forbiddenRoles": [Main.Config.roles.hostRole, Main.Config.roles.studentRole, ...Main.Config.roles.otherRoles]};
+        // let data = {"forbiddenRoles": [Main.Config.roles.hostRole, Main.Config.roles.studentRole, ...Main.Config.roles.otherRoles]};
         // this.RegisterLegacyCommand("student", this.onStudent, data);
         // this.RegisterLegacyCommand("erasmus", this.onStudent, data);
         // this.RegisterLegacyCommand("teacher", this.onTeacher, data);
@@ -35,15 +36,13 @@ export class VerificationService extends Service {
         // this.RegisterLegacyCommand("absolvent", this.onAbsolvent, data);
 
         this.DefineButtonBehavior("special.sso", this.behaviorSpecialSso);
-
-        this.RegisterLegacyCommand("tempv", this.tempVerification);
     }
 
     public async VerifyStudent(userId: string, email: string, login: string, firstName: string, lastName: string): Promise<void> {
         let isTeacher: boolean = false;
         let result: Axios.AxiosResponse = await Axios.default.get(Main.Config.services.VerificationService.teacherUrlPrefix + login, {
-            maxRedirects: 50,
-            headers:{
+            maxRedirects: 500,
+            headers: {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36 Edg/95.0.1020.38",
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "Connection": "keep-alive"
@@ -52,18 +51,22 @@ export class VerificationService extends Service {
         });
         if (result.status === 200)
             isTeacher = true;
-        console.log(result.status+": "+isTeacher);
-
         login = login.toLowerCase();
         let rows: any[] = await Main.Database.Select(Main.Config.database.queries.select.userByLogin, [login]);
         if (rows.length >= 1 && rows[0]["id"] !== userId) {
-            // If current login is used, throw an error.
+            await BotLogger.Info(
+                "VerificationService.VerifyStudent.LoginUsed",
+                `Login ${login} has been already used by someone else.`
+            );
             return;
         }
         rows = await Main.Database.Select(Main.Config.database.queries.select.userById, [userId]);
         if (rows.length >= 1) {
             if (rows[0]["login"] !== login) {
-                // TODO: If current userId is used, but login is different, throw an error.
+                await BotLogger.Info(
+                    "VerificationService.VerifyStudent.UserIdUser",
+                    `UserId ${userId} has been already used on login ${rows[0]["login"]}, but tried to use on ${login}.`
+                );
                 return;
             }
             Main.Database.Run(Main.Config.database.queries.update.userInfoById, [
@@ -87,10 +90,11 @@ export class VerificationService extends Service {
             await Roles.AddRole(await Messenger.GetMemberById(userId), Main.Config.roles.teacherRole);
         else
             await Roles.AddRole(await Messenger.GetMemberById(userId), Main.Config.roles.studentRole);
-    }
 
-    public async tempVerification(msg: Message, args: string[]): Promise<void> {
-        this.VerifyStudent("141283180341755904", "mil0068@vsb.cz", "mil0068", "Daniel", "Milian");
+        await BotLogger.Info(
+            "VerificationService.VerifyStudent.Success",
+            `UserId ${userId} with login ${login} has successfully verified as ${(isTeacher ? "Teacher" : "Student")}.`
+        );
     }
 
     private async behaviorSpecialSso(interaction: ButtonInteractionWrap, args: string[]): Promise<void> {
@@ -253,7 +257,6 @@ export class VerificationService extends Service {
      */
     checkName(name) {
         return name.length <= 7;
-
     }
 
     async OnMessage(msg) {

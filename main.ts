@@ -104,6 +104,7 @@ let start = () => {
     DEBUG = false;
     if (process.argv.length >= 3 && process.argv[2] === "--debug")
         DEBUG = true;
+    Logger.Info("Do not forget to run ./webserver.js script before starting the bot!");
     let keys = Object.keys(Auth.bots);
     for (let i = 0; i < keys.length; ++i) {
         Logger.Info(`Registering bot ${keys[i]}.`);

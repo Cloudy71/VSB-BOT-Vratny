@@ -68,6 +68,7 @@ export abstract class MasterServerDataBuilder {
         ]);
 
         // TODO: NodeJS Buffers are retarded and incomplete. Probably will change to JSON string instead, idc anymore... (Chce se mi srát. :>)
+        // TODO: To stále platí...
 
         // let buffer: Buffer = Buffer.alloc(1 + userId.length + login.length + mail.length + firstName.length + lastName.length);
         // Buffer.from()
