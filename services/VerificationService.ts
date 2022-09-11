@@ -13,8 +13,10 @@ import * as Formatter from "../libs/Formatter";
 import * as Files from "../libs/Files";
 import * as Channels from "../libs/Channels";
 import {ButtonInteractionWrap} from "../types/ButtonInteractionWrap";
-import * as Axios from "axios";
+import axios, {AxiosResponse} from "axios";
 import {BotLogger} from "../libs/BotLogger";
+import {CookieJar} from "tough-cookie";
+import {wrapper} from "axios-cookiejar-support";
 
 export class VerificationService extends Service {
     private readonly ssoAddress: string;
@@ -40,17 +42,23 @@ export class VerificationService extends Service {
 
     public async VerifyStudent(userId: string, email: string, login: string, firstName: string, lastName: string): Promise<void> {
         let isTeacher: boolean = false;
-        let result: Axios.AxiosResponse = await Axios.default.get(Main.Config.services.VerificationService.teacherUrlPrefix + login, {
-            maxRedirects: 500,
-            headers: {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36 Edg/95.0.1020.38",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                "Connection": "keep-alive"
-            },
-            validateStatus: () => true
-        });
-        if (result.status === 200)
-            isTeacher = true;
+        // const jar = new CookieJar();
+        // wrapper(axios);
+        // let result: AxiosResponse = await axios.get(Main.Config.services.VerificationService.teacherUrlPrefix + login, {
+        //     jar
+        // });
+        // let result: AxiosResponse = await axios.get(Main.Config.services.VerificationService.teacherUrlPrefix + login, {
+        //     maxRedirects: 500,
+        //     headers: {
+        //         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36 Edg/95.0.1020.38",
+        //         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        //         "Connection": "keep-alive"
+        //     },
+        //     withCredentials: true,
+        //     validateStatus: () => true
+        // });
+        // if (result.status === 200 && !result.headers["Location"].indexOf("404.html"))
+        //     isTeacher = true;
         login = login.toLowerCase();
         let rows: any[] = await Main.Database.Select(Main.Config.database.queries.select.userByLogin, [login]);
         if (rows.length >= 1 && rows[0]["id"] !== userId) {
