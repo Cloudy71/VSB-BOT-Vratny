@@ -117,7 +117,7 @@ let start = () => {
     Services.AddService(new AdminService());
     // Services.AddService(new ChannelCleanService());
     // Services.AddService(new PostingService());
-    Services.AddService(new PollService());
+    // Services.AddService(new PollService());
     // Services.AddService(new StudentInfoScraperService());
     // Services.AddService(new WebService());
     Services.AddService(new CheckerLogService());
