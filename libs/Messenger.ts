@@ -5,8 +5,7 @@
  */
 
 import * as Main from "../main";
-import {GuildChannel, GuildMember, Message, Role, TextChannel, ThreadChannel} from "discord.js";
-import {mem} from "systeminformation";
+import {GuildMember, Message, Role, TextChannel} from "discord.js";
 
 /**
  *
@@ -80,7 +79,7 @@ export function GetMessageById(channelId: string, messageId: string): Promise<Me
     if (channel === null) {
         return new Promise(((resolve, reject) => {
             Main.GetCurrentBot().client.channels.fetch(channelId).then((channel: TextChannel) => {
-                channel.messages.fetch(messageId, {cache: true}).then((msg: Message) => {
+                channel.messages.fetch(messageId).then((msg: Message) => {
                     resolve(msg);
                 }).catch(() => {
                     reject();
@@ -97,6 +96,6 @@ export function GetMessageById(channelId: string, messageId: string): Promise<Me
                 .cache
                 .find((channel) => channel.id == channelId) as TextChannel
         ).messages
-            .fetch(messageId, {cache: true});
+            .fetch(messageId);
     }
 }

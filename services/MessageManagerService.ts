@@ -6,23 +6,26 @@
 import {Service} from "../service";
 import * as Main from "../main";
 import {
+    ActionRow,
+    ActionRowBuilder, ActionRowData, AnyComponentBuilder,
+    ButtonBuilder,
+    ButtonStyle, ChannelType,
+    ChatInputCommandInteraction,
     CommandInteraction,
     GuildChannel,
-    GuildMember,
-    Message,
-    MessageActionRow,
-    MessageButton, MessageButtonStyleResolvable, MessageEditOptions, Role,
+    Message, MessageActionRowComponent, MessageActionRowComponentData,
+    MessageEditOptions,
+    Role,
     TextChannel
 } from "discord.js";
 import * as Messenger from "../libs/Messenger";
 import * as Formatter from "../libs/Formatter";
 import * as Roles from "../libs/Roles";
-import * as Logger from "../libs/Logger";
 import {ButtonInteractionWrap} from "../types/ButtonInteractionWrap";
-import {SlashCommandBuilder} from "@discordjs/builders";
 import {ButtonBehaviorHandler} from "../types/ButtonBehaviorHandler";
 import {StringUtils} from "../libs/StringUtils";
 import {BotLogger} from "../libs/BotLogger";
+import {MessageActionRowComponentBuilder, SlashCommandBuilder} from "@discordjs/builders";
 
 export class MessageManagerService extends Service {
     constructor() {
@@ -79,9 +82,6 @@ export class MessageManagerService extends Service {
                         name: "LINK",
                         value: "LINK"
                     }))
-                .addIntegerOption(option => option.setName("row")
-                    .setDescription("Component row")
-                    .setRequired(false))
                 .addStringOption(option => option.setName("args")
                     .setDescription("Additional arguments")
                     .setRequired(false)),
@@ -153,11 +153,26 @@ export class MessageManagerService extends Service {
         );
     }
 
-    private async slashCommandAppendButton(interaction: CommandInteraction): Promise<void> {
-        let abstractChannel: GuildChannel = interaction.options.getChannel("channel", true) as GuildChannel;
-        if (abstractChannel.type !== "GUILD_TEXT") {
-            return;
+    private resolveButtonStyle(style: string): ButtonStyle {
+        switch (style) {
+            case "PRIMARY":
+                return ButtonStyle.Primary;
+            case "SECONDARY":
+                return ButtonStyle.Secondary;
+            case "SUCCESS":
+                return ButtonStyle.Success;
+            case "DANGER":
+                return ButtonStyle.Danger;
+            case "LINK":
+                return ButtonStyle.Link;
+            default:
+                return ButtonStyle.Primary;
         }
+        ;
+    }
+
+    private async slashCommandAppendButton(interaction: ChatInputCommandInteraction): Promise<void> {
+        let abstractChannel: GuildChannel = interaction.options.getChannel("channel", true) as GuildChannel;
         let channel: TextChannel = abstractChannel as TextChannel;
         let messageId: string = interaction.options.getString("message", true) as string;
         let label: string | null = interaction.options.getString("label", false);
@@ -170,7 +185,6 @@ export class MessageManagerService extends Service {
         if (style === null) {
             style = "PRIMARY";
         }
-        let row: number | null = interaction.options.getInteger("row", false);
         let args: string | null = interaction.options.getString("args", false);
         if (args === null) {
             args = "";
@@ -187,11 +201,15 @@ export class MessageManagerService extends Service {
             return;
         }
 
-        let componentIndex: number = row !== null && row !== undefined ? row as number : 0;
-        let components = message.components;
+        let componentIndex: number = message.components.length > 0
+            ? message.components[message.components.length - 1].components.length < 5
+                ? message.components.length - 1
+                : message.components.length
+            : 0;
+        let components = message.components.map(c => new ActionRowBuilder<MessageActionRowComponentBuilder>(c));
         if (components.length <= componentIndex) {
             for (let i = components.length; i <= componentIndex; ++i) {
-                components.push(new MessageActionRow());
+                components.push(new ActionRowBuilder<MessageActionRowComponentBuilder>());
             }
         }
         let argList: string = "";
@@ -201,9 +219,13 @@ export class MessageManagerService extends Service {
         let identifier: string = channel.id + "_" + messageId + "_" + componentIndex + components[componentIndex].components.length.toString(); // TODO: Bug possible due to components clearing.
         let fullId: string = `[${behavior}]${Formatter.Simplify(identifier)}{${argList}}`;
         let shortId: string = Formatter.Simplify(identifier);
-        let messageButton: MessageButton = new MessageButton()
+        // let messageButton: ButtonComponent = new ButtonComponent({
+        //     custom_id:fullId,
+        //     style: this.resolveButtonStyle(style)
+        // });
+        const messageButton = new ButtonBuilder()
             .setCustomId(fullId)
-            .setStyle(style as MessageButtonStyleResolvable);
+            .setStyle(this.resolveButtonStyle(style))
         if (label !== null) {
             messageButton.setLabel(label);
         }
@@ -216,9 +238,7 @@ export class MessageManagerService extends Service {
             }
             messageButton.setEmoji(emojiId);
         }
-        components[componentIndex].addComponents(
-            messageButton
-        );
+        components[componentIndex].addComponents(messageButton);
         // Check if any components are empty, then delete...
         for (let i = 0; i < components.length; ++i) {
             if (components[i].components.length === 0) {
@@ -249,9 +269,9 @@ export class MessageManagerService extends Service {
 
     }
 
-    private async slashCommandDeleteButton(interaction: CommandInteraction): Promise<void> {
+    private async slashCommandDeleteButton(interaction: ChatInputCommandInteraction): Promise<void> {
         let abstractChannel: GuildChannel = interaction.options.getChannel("channelid", true) as GuildChannel;
-        if (abstractChannel.type !== "GUILD_TEXT") {
+        if (abstractChannel.type !== ChannelType.GuildText) {
             return;
         }
         let channel: TextChannel = abstractChannel as TextChannel;
@@ -264,7 +284,7 @@ export class MessageManagerService extends Service {
             return;
         }
 
-        let components: MessageActionRow[] = message.components;
+        let components = message.components.map(c => new ActionRowBuilder<MessageActionRowComponentBuilder>(c));
         if (components.length <= buttonRow) {
             return;
         }
@@ -273,7 +293,7 @@ export class MessageManagerService extends Service {
             return;
         }
 
-        components[buttonRow].spliceComponents(buttonCol, 1);
+        components[buttonRow].setComponents(...components[buttonRow].components.splice(buttonCol, 1));
         if (components[buttonRow].components.length == 0) {
             components.splice(buttonRow, 1);
         }
@@ -304,7 +324,7 @@ export class MessageManagerService extends Service {
         await interaction.reply({content: "OK!", ephemeral: true});
     }
 
-    private async slashCommandEmbed(interaction: CommandInteraction): Promise<void> {
+    private async slashCommandEmbed(interaction: ChatInputCommandInteraction): Promise<void> {
         let jsonString: string = interaction.options.getString("json", true) as string;
         console.log(jsonString);
         let json: {} = JSON.parse(jsonString);

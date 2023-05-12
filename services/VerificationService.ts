@@ -13,10 +13,7 @@ import * as Formatter from "../libs/Formatter";
 import * as Files from "../libs/Files";
 import * as Channels from "../libs/Channels";
 import {ButtonInteractionWrap} from "../types/ButtonInteractionWrap";
-import axios, {AxiosResponse} from "axios";
 import {BotLogger} from "../libs/BotLogger";
-import {CookieJar} from "tough-cookie";
-import {wrapper} from "axios-cookiejar-support";
 
 export class VerificationService extends Service {
     private readonly ssoAddress: string;

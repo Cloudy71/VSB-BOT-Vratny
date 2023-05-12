@@ -9,10 +9,8 @@ import * as Discord from "discord.js";
 import * as Logger from "./libs/Logger";
 import * as Services from "./libs/Services";
 import {
-    ApplicationCommand,
-    ApplicationCommandPermissionData,
+    GatewayIntentBits,
     GuildMember,
-    Intents,
     MessageReaction,
     User
 } from "discord.js";
@@ -33,11 +31,11 @@ export class Bot {
         // this.intents = new Discord.Intents(Discord.Intents.ALL);
         this.client = new Discord.Client({
             intents: [
-                Intents.FLAGS.GUILD_MEMBERS,
-                Intents.FLAGS.GUILD_MESSAGES,
-                Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-                Intents.FLAGS.DIRECT_MESSAGES,
-                Intents.FLAGS.GUILDS,
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.GuildMessageReactions,
+                GatewayIntentBits.DirectMessages,
             ]
         });
         this.guild = null;

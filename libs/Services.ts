@@ -18,7 +18,7 @@ import {
     User,
     MessageReaction,
     Interaction,
-    MessageInteraction, ButtonInteraction, MessageButton, CommandInteraction
+    MessageInteraction, ButtonInteraction, MessageButton, CommandInteraction, ButtonComponent
 } from "discord.js";
 import {Service} from "../service";
 import {Bot} from "../bot";
@@ -236,7 +236,7 @@ export async function OnButtonInteraction(interaction: Interaction) {
     let buttonInteraction: ButtonInteraction = interaction as ButtonInteraction;
     let wrap: ButtonInteractionWrap = new ButtonInteractionWrap(
         interaction.member as GuildMember,
-        buttonInteraction.component as MessageButton,
+        buttonInteraction.component as ButtonComponent,
         buttonInteraction.message as Message,
         buttonInteraction
     );

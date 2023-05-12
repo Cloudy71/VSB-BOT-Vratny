@@ -73,7 +73,8 @@ export class PollService extends Service {
                 await reactions.users.remove(member.user);
             }
         }
-        await msg.message.edit({embeds: [msg.createEmbed()]});
+        // TODO: Fix this
+        // await msg.message.edit({embeds: [msg.createEmbed()]});
         return true;
     }
 
@@ -82,7 +83,8 @@ export class PollService extends Service {
         if (msg === null) return;
         let date = new Date();
         if (date.getTime() >= msg.end.getTime()) return;
-        await msg.message.edit({embeds: [msg.createEmbed()]});
+        // TODO: Fix this
+        // await msg.message.edit({embeds: [msg.createEmbed()]});
     }
 }
 
@@ -178,14 +180,15 @@ export class PollVote {
         //     .addField("Možnosti", this.createEmbed(), false)
         //     .setTimestamp();
 
-        this.channel.send({embeds: [this.createEmbed()]}).then(msg => {
-            this.message = msg;
-            for (let i = 0; i < this.realEmojis.length; ++i) {
-                this.message.react(this.realEmojis[i]);
-            }
-            Main.Database.Run(Main.Config.database.queries.insert.poll, [this.message.channel.id + "-" + this.message.id,
-                this.start, this.end, this.author.id, this.title, JSON.stringify(this.options), JSON.stringify(this.emojis)]);
-        }).catch(err => {
-        });
+        // TODO: Fix this
+        // this.channel.send({embeds: [this.createEmbed()]}).then(msg => {
+        //     this.message = msg;
+        //     for (let i = 0; i < this.realEmojis.length; ++i) {
+        //         this.message.react(this.realEmojis[i]);
+        //     }
+        //     Main.Database.Run(Main.Config.database.queries.insert.poll, [this.message.channel.id + "-" + this.message.id,
+        //         this.start, this.end, this.author.id, this.title, JSON.stringify(this.options), JSON.stringify(this.emojis)]);
+        // }).catch(err => {
+        // });
     }
 }

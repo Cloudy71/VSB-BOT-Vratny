@@ -10,7 +10,7 @@ import * as Channels from "../libs/Channels";
 import * as Formatter from "../libs/Formatter";
 import * as Logger from "../libs/Logger";
 import * as SystemInformation from "systeminformation";
-import {Message, MessageEmbed, TextChannel} from "discord.js";
+import {EmbedBuilder, Message, TextChannel} from "discord.js";
 import {BotLogger} from "../libs/BotLogger";
 
 export class AdminService extends Service {
@@ -145,7 +145,7 @@ export class AdminService extends Service {
                 coresLoadString += (coresLoadString.length > 0 ? "\n" : "") + " - **CPU" + i + "**: " + (Math.round(cpuInfo.cpus[i].load * 100) / 100).toFixed(2) + "%";
             }
 
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setColor("#0099ff")
                 .setTitle("Hardware Info")
                 .addFields(

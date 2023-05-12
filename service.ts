@@ -6,15 +6,15 @@
 
 import * as Main from "./main";
 import {Bot} from "./bot";
-import {GuildMember, Message, MessageReaction} from "discord.js";
+import {GuildMember, Message, MessageReaction, SharedSlashCommandOptions} from "discord.js";
 import {Cron} from "./cron";
 import * as Channels from "./libs/Channels";
 import * as Logger from "./libs/Logger";
 import {ButtonInteractionWrap} from "./types/ButtonInteractionWrap";
-import {SharedSlashCommandOptions, SlashCommandBuilder} from "@discordjs/builders";
 import {CommandBehaviorCallback, SlashCommandWrap} from "./types/SlashCommandWrap";
 import {ServiceGlobalData} from "./types/ServiceGlobalData";
 import {ButtonBehaviorCallback} from "./types/ButtonBehaviorHandler";
+import {SlashCommandBuilder} from "@discordjs/builders";
 
 export class Service {
     public static readonly globalData: ServiceGlobalData = new ServiceGlobalData();

@@ -31,7 +31,7 @@ export class PostingService extends Service {
     async OnStart() {
         Channels.FetchChannel(Main.Config.channels.vsbNews).then(channel => {
             this.channel = channel as TextChannel;
-            this.channel.messages.fetch({limit: 1}, {cache: true}).then(msgs => {
+            this.channel.messages.fetch({limit: 1, cache:true}).then(msgs => {
                 if (msgs.size !== 1) return;
                 let msg = msgs.first();
                 let url = msg.content.substr(msg.content.indexOf("https://"));

@@ -3,7 +3,7 @@
  * Date: 11/09/2021
  * Time: 18:39
  */
-import {NonBotService, Service} from "../service";
+import {NonBotService} from "../service";
 import * as Net from "net";
 import * as Logger from "../libs/Logger";
 import * as Services from "../libs/Services";
