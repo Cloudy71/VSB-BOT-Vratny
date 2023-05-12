@@ -18,7 +18,7 @@ import {
     User,
     MessageReaction,
     Interaction,
-    MessageInteraction, ButtonInteraction, MessageButton, CommandInteraction, ButtonComponent
+    ButtonInteraction, CommandInteraction, ButtonComponent, ChannelType
 } from "discord.js";
 import {Service} from "../service";
 import {Bot} from "../bot";
@@ -113,7 +113,8 @@ export async function OnStart(bot: Bot) {
 }
 
 export async function OnMessage(msg: Message) {
-    if (msg.channel.type !== "GUILD_TEXT" || Main.IsBotId(msg.author.id)) return;
+    if (msg.channel.type !== ChannelType.GuildText || Main.IsBotId(msg.author.id))
+        return;
     Main.SetCurrentBot(msg.client);
 
     if (msg.content.indexOf(Main.Config.legacyPrefix[0]) === 0 || msg.content.indexOf(Main.Config.legacyPrefix[1]) === 0) { // Command

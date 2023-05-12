@@ -8,7 +8,7 @@ import * as Main from "../main";
 import * as Channels from "./Channels";
 import * as Logger from "./Logger";
 import * as Roles from "./Roles";
-import {MessageEmbed, Role, TextChannel} from "discord.js";
+import {EmbedBuilder, Role, TextChannel} from "discord.js";
 
 export abstract class BotLogger {
     private static logsChannel: TextChannel | null = null;
@@ -33,7 +33,7 @@ export abstract class BotLogger {
         await (await this.getChannel()).send({
             content: (developerRole !== null ? developerRole.toString() + " " : "[DEBUG] ") + "An exception occurred:",
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor("#ff9999")
                     .setTitle("MAJOR ERROR\ntype " + error.name + (message !== null && message !== undefined ? "\n\n" + message : ""))
                     .setDescription(error.message + "\n" + error.stack + "\n")
@@ -49,7 +49,7 @@ export abstract class BotLogger {
         await (await this.getChannel()).send({
             content: "A self-handled error occurred:",
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor("#ffcccc")
                     .setTitle("MINOR ERROR")
                     .setDescription(message)
@@ -65,7 +65,7 @@ export abstract class BotLogger {
         await (await this.getChannel()).send({
             content: "Important info message:",
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor("#f1ffad")
                     .setTitle("IMPORTANT INFO")
                     .setDescription(message)
